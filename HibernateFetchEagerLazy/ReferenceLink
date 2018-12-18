@@ -1,0 +1,72 @@
+Video(Telusko)
+	 https://www.youtube.com/watch?v=ucuVbL-tsUY&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r&index=15
+	 
+-----------------------------------------------------------------------------------------------------	 
+IN MYSQL Create DB "test"
+			- Create tables alien and laptop (put some data)
+					- (I created the tables using code) in hibernate.cfg.xml -- use 'create'
+							- alien (onetomany)
+							- laptop (manytoone)
+							- run it only once then add the other data manually
+THE PLAN ON THIS PROJECT IS TO FETCH SAVED DATA FROM DB			
+-------------------------------------------------------------------------------------------------------	 
+1. Create Maven Project (Core - quickstart)
+
+2. Add Hibernate-core and mysql-core-connector dependencies
+
+3.  Create hibernate.cfg.xml file (If Finish is not working, dont forget to downgrade version eg. from 5.3 --> 5.2)
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/test</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <property name="show_sql">true</property>
+        
+4. Create Classes with Getter n Setter AND @Entity and @Id annotations must be used for the POJO CLASSES
+	- Alien(aid, aname)
+	- Computer()
+	- Desktop()
+	- Laptop()
+	- Tech()
+	
+		
+5. Basic Setup in App Class (main method)
+	- if you have more than one class to be mapped dont forget to add it (addAnnotatedClass(ClassName.class))
+	
+		Configuration con = new Configuration().configure().addAnnotatedClass(Alien.class);
+		ServiceRegistry reg = new ServiceRegistryBuilder().applySettings(con.getProperties()).buildServiceRegistry();
+		SessionFactory sessionFactory = con.buildSessionFactory(reg);
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+
+		/** LOGIC PART
+		Here you can put your logic . . . 
+		**/
+		
+		System.out.println("hi");
+		session.getTransaction().commit();
+		
+
+6. To Fetch data from DB its upto you to choose the type "LAZY" or "EAGGER"
+		- LAZY: it is the default fetch type
+				- it needs individual query to fetch data
+				- you have to specifically fetch any data u want manually:	
+						Alien a1 = (Alien)session.get(Alien.class, 1);
+						System.out.println(a1.getAname());
+						
+						Collection<Laptop> laps = a1.getLaps();
+						 
+						System.out.println("The list of laptops for "+ a1.getAname() + " are: ");
+						for (Laptop laptop : laps) {
+							System.out.println(laptop);
+						} 
+		- EAGGER:. u can specify it on the mapping
+			- eg. in Alien class when  creating the list of laptops you can say that u want EAGGER fetch type
+						@OneToMany(mappedBy="alien", fetch= FetchType.EAGGER)
+			- this will load the whole object of the foreign key with its values(uses left outer join)
+			- 1 query will be excuted
+
+6. Create relationship between laptop n student tables/classes       
+	- create a laptop object in Student class with gettes n setters, 
+7. Relationships:- when creating an object of other class in your class, u should specify the relationship b/n student n laptop
