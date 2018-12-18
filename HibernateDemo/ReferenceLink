@@ -1,0 +1,98 @@
+Video Tutorials(Telusko)
+				https://www.youtube.com/watch?v=FJdqunnFmeQ&index=5&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r
+				
+				
+First:----------  Go to MySql and create a new database eg. 'neon'				
+1. Create Maven Project (QuickStart - java core)
+2. Create a POJO class (Alien(aid,aname, color))
+3. Add the hibernate and MySql dependencies on the maven dependencies(pom.xml) (from mvnrepository.com)
+		- MySQL Version and the mySQL diver should match (eg. Workbench 8-- > i used mysql .jar V 8.0.11)
+4. Add the hibernate plugin(JBoss) for Eclipse
+			:- go to Helop --> Eclipse marketplace
+			:- install only the "hibernate" from all the functionalities listed under the jboss
+5. in App.class
+		- Create "Alien" object and set values to all the properties
+		- create the session object 
+					- create configuration object --> create SessionFactory obj --> create session object
+		- save the object session.save(alien)
+6 congifure jdbc
+	- create a new file "hibernate Configuration file(cfg.xml)"			
+				Hibernate Version: 5.3 was not working so i switched it to 5.2 and now its working
+				Databse dialect: MySQL
+				Driver class: com.mysql.jdbc.Driver
+				Connection URL: jdbc:mysql://localhost:3306/neon
+				username: root
+				password: root
+7. in order hibernate to use the configuration file cfg.xml 
+	- you should explicitly mention on the App.class, when creating the Congfiguration obje
+				 Configuration con = new Configuration().configure();
+    - the .configure() will directly go and access the default cfg.xml file
+    
+8. Add @Entity to the pojo class Aliens to be accessed by the DB
+	- Add the @Id on your 'aid'
+9  to specify the you are working with an entity class you should add ".addAnnotatedClass(Alien.class)"
+	  Configuration con = new Configuration().configure().addAnnotatedClass(Alien.class);
+10.	Whenever you want to make changes in DB (including creating a new table), you have to mention n create a transaction
+   - in App.class, before session.save(alien)
+   		- 		Transaction tx = session.beginTransaction()
+   				session.save(alien)
+   				tx.commit()
+   				
+11. If "table doesnt exist occurs", create the table
+		1. go to cfg.xml file and specify or tell hibernate to create a table for you (user create or update(i prefere this one))
+			- first i tried with "update" it doenst work so i used "create" for the first one then changed the code to "update" and it works
+ 					<property name="hibernate.hbm2ddl.auto">create OR update</property>
+		
+		2.(not recommended for this course) just go to the database and create the table with the same properties like the class
+	
+12. If you are 	getting at the "con.buildSessionFactory" --> "From Type Configuration is deprecated" in App.class
+	- For Latest version of Hibernate after 4.1, there is a new class to work with SesisonFactory use it before the error
+			ServiceRegistry reg = new ServiceRegistryBuilder().applySettings(con.getProperties()).buildServiceRegistry();
+	- then use the 'reg' in 
+		SessionFactory sf = con.buildSessionFactory(reg);
+	- the error "deprecated" will be gone :)
+	
+13. To see how hibernate is converting the java object's values to SQL qruery to create or update the data
+ - you can display the sql statement on the console
+ 	- go to cfg.xml and add property
+ 			      <property name="show_sql">true</property>
+ 			      
+ ------------------ Annotations have been exercised after this code - - ---------------------
+ 
+ @Entity(name="alien_table")
+ 		- it will create a table with the mentioned name
+ - Layer of Entity
+ 			ClassName --> EntityName --> TableName
+ 			- to changed only table name @Table(name="alien_table")
+ @Column(name="alien_color")
+ 		- will create the column name with the given name
+ 
+@Transient
+		- it will not send/save the column which have been refered as "transient" it will be excluded
+ 
+------------------------------ Fetching Data from the DB ---------------------------------------------
+- in App.java
+    - Alien alien = null, Because it will give you the object when trying to fetch the data using the get(calss, id) method
+	remove the adding data, saving the object from the code  "get(class, id)"
+	
+	-  	alien(the object you created) = (Alien)session.get(Alien.class,101)		      
+	
+-------------------------- Embeddable (@Embeddable) ----------------------------------------
+- remove @column from the color
+
+- Planning to have three names first, middle and last names
+	1. Create a class called "AlienName"
+			- fName, mName, mName with getters and setters
+			- Add annotations @Embeddable, @Table("table name"): - so that all these columns will be  embedded to the table mentioned
+	2. In Alien.class, instead of having a string we go "AlienName" object (change the getter and setters)
+	3. In App.class
+			- create the new alien object as new because we want to create one (Alien alien = new Alien();)
+			- Create AlienName object and set fname, mname, lname
+			
+			- session.save(alien) :-
+			- go n check the db(workbench) it will create a table with
+									- aid, fname,mname,lname, color  
+			
+-------------------------------------- Mapping Relations Theory ----------------------------------
+- 			
+			
