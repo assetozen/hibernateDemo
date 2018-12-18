@@ -1,0 +1,84 @@
+Video(Telusko)
+	Theory:		https://www.youtube.com/watch?v=ZLeTFBvegfY&index=24&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r
+	Practical:	https://www.youtube.com/watch?v=7wrN-Y6K9B4&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r&index=25
+			
+			
+1. Create Maven Project (Core - quickstart)
+2. Add Hibernate-core and mysql-core-connector dependencies
+3. Create Laptop(lid,brand,price) POJO class with getter n setter and toString method
+		- @Entity and @Id annotations must be added
+4. in App.class
+			- Add random data for laptop(SESSION.MERGE(OBJ) is used to add the data)
+					Laptop laptop = new Laptop();
+					Random rand = new Random();
+					for (int i = 1; i <= 100; i++) {
+						session.beginTransaction();
+						laptop.setLid(i);
+						laptop.setBrand("Brand" + i);
+						laptop.setPrice(rand.nextInt(10000) + 1);
+						session.merge(laptop);
+						session.getTransaction().commit();
+					}
+					
+4. In MySQL Workbench, create a database "alpha"
+			create database alpha;
+
+5. Create hibernate.cfg.xml file
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/alpha</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <property name="show_sql">true</property>
+        	
+6. Different States of the Hibernate object Transient, Persistent . . . . . 
+	- Transient State: here the object is available temporarly 
+	- Persistent State: after saving or persisting the object, all the changes will be applied to the DB
+	- Detached State: session.detach(), after this method any change made to the object will not go to the DB it remains only for user
+	- Removed State: session.remove(obj) :- will remove the object from the DB 
+			session.beginTransaction();
+			Laptop laptop = new Laptop();
+			laptop.setLid(101);
+			laptop.setBrand("Thosiba");
+			laptop.setPrice(2000);
+		
+			session.save(laptop);
+			laptop.setPrice(4000); // this change wont affect the DB 
+		
+			session.getTransaction().commit();
+
+7. Hibernate get Vs Load
+	GET:- Everytime u use get it will hit the DB, means it fires query  whether u r using the object or not
+	   :- will give u the object
+	   :- is mostly used
+	   :- interms of exception, if u start looking for a data which doesnt exist
+	   			- GET will give u null value
+	   			- if u look for specific data (obj.getid()), it will give u null point exception
+		Laptop laptop = (Laptop) session.get(Laptop.class, 6);
+	
+	LOAD: It will not fire a query unless you are using the object
+	    :- will give you the PROXY object(not actual object), it gives you the object when u want to use it.
+	    :- rarely used
+	    :- interms of exception, if u start looking for a data which doesnt exist, it will automatically throw an exception "objectNotFoundException"
+	    
+		Laptop laptop = (Laptop) session.load(Laptop.class, 6); //only with this line of code it doesn't fire query
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// we used the thread to show that load will fire query only when we r using the object,. For this case it waits 3000msec n fires the query
+		
+		System.out.println(laptop); // this time it will fire query
+		
+		
+	
+	 
+	
+			
+			
+ 
