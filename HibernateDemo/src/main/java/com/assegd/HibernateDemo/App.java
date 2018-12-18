@@ -13,6 +13,7 @@ import org.hibernate.service.ServiceRegistryBuilder;
  */
 public class App {
 
+	 /*Changes to test if it is commited to the Github repo*/
 	public static void main(String[] args) {
 		AlienName alienName = new AlienName();
 		alienName.setFname("Assegd");
