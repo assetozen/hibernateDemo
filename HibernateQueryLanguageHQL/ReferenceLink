@@ -1,0 +1,123 @@
+Video(Telusko)
+		Hibernate Query Language (HQL) Playlist - (#19 - #22)	
+				https://www.youtube.com/watch?v=8mUPvdDGoLQ&index=14&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r
+			
+			
+1. Create Maven Project (Core - quickstart)
+2. Add Hibernate-core and mysql-core-connector dependencies
+3. Create Student(rollno,name,marks) POJO classe with getter n setters and toString method
+		- @Entity and @Id annotations must be used for both
+4. Create hibernate.cfg.xml file
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/assegd</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="show_sql">true</property>
+        	
+5. in App.class
+	- create Student object and set rollno, name, marks
+		ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(config.getProperties()).buildServiceRegistry();
+		SessionFactory sessionFactory = config.buildSessionFactory(serviceRegistry);
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+				//TODO inserted by a.asfaw [14.12.2018, 12:32:48] // put ur logic here(example save(object))
+		session.getTransaction().commit();
+		
+6. Start entering the data into DB in App.class
+	- create student object
+	- use simple for loop to enter random data for Student
+			Random r = new Random();
+			for (int i = 1; i <= 50; i++) {
+					Student student = new Student();
+					student.setRollno(i);
+					student.setName("Name" + i);
+					student.setMarks(r.nextInt(100));
+					session.save(student);
+			}
+			
+7. Fetch the values (Firing HQL Queries)
+	- make the property "update" in your hibernate.cfg.xml
+	- fire a query in App.class
+		- show all students
+				Query q = session.createQuery("from Student");
+				List<Student> students = q.list();
+		 		for (Student s : students) {
+					System.out.println(s);
+				}
+		- show students mark > 50
+				just the statement to "from Student where marks > 50", then run the app
+				
+		- show a single student rollno = 7
+			- here you know that you are getting a single result so, 
+				- change the list to single object
+				- retreive the data as s.uniqueResult(); dont forget to cast it to Student
+				   	Query q = session.createQuery("from Student where rollno =7");
+					Student student = (Student) q.uniqueResult();
+					System.out.println(student);
+		- to specifically display columns
+			- it will return object of array because of the columns(objects) you are specifying
+					Query q = session.createQuery("select rollno, name,marks from Student where rollno =7");
+					Object[] student = (Object[]) q.uniqueResult();
+			   - To display the object we have different optopns
+			   		1.	for (Object o : student) {
+							System.out.println(o);
+						}
+					
+					2. System.out.println(student[0] + " : " + student[1] + " : " + student[2] );
+			   - To display the entire table (returns list of object arrays)
+			   			Query q = session.createQuery("select rollno, name, marks from Student");
+						List<Object[]> students = (List<Object[]>)q.list();
+						for (Object[] student : students) {	
+							System.out.println(student[0] + " : " + student[1] + " : " + student[2] );
+						}
+			   - if you have different tables with same columns, you can use alias tableName.columnName
+			   			Query q = session.createQuery("select rollno, name, marks from Student s where marks > 60");
+			   		    List<Object[]> students = (List<Object[]>)q.list();
+						for (Object[] student : students) {	
+							System.out.println(student[0] + " : " + student[1] + " : " + student[2] );
+						}
+			   - sum of marks - for marks > 60  (you can use the data type:- Long)
+			   			Query q = session.createQuery("select sum(marks) from Student s where s.marks>60");
+						Object student = q.uniqueResult();
+						System.out.println(student);
+			   - to use prepared statement in HQL you can use :VariableName and dont forget to set parameter for the query
+			   			int b = 60;
+			   			Query q = session.createQuery("select sum(marks) from Student s where s.marks> :b");
+			   			q.setParameter("b", b);
+						Object student = q.uniqueResult();
+						System.out.println(student);
+8. Firing SQL queries using hibnernate(In App.class)
+	- Printing the entire columns with " * "
+			- Create SQLQuery object
+					SQLQuery query = session.createSQLQuery("select * from student where marks>60");
+			- Add Student Class as an Entity in the query object
+					query.addEntity(Student.class);
+			- Create student list object and assign the list from query
+					List<Student> students = query.list();
+			- Print the result values 
+					for (Student student : students) {
+						System.out.println(student);
+					} 
+	
+	- Printing specific columns from the table (Using "Native Queries")
+			- Just change the SQL statement
+				SQLQuery query = session.createSQLQuery("select rollno,name from student where marks>60");
+			- Convert your output into Mapped entity format
+				query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+			- Crate object of "Object" type
+				Object students = query.list();
+			- Printing the values
+				- Dont forget to type cast the sudent object to "Map"
+				for (Object student : students) {
+					Map map = (Map)student;
+					System.out.println(map.get("name") + " : " + map.get("marks"));
+				}
+				
+			
+		
+			
+	
+			
+ 
