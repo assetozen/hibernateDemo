@@ -1,0 +1,53 @@
+Video(Telusko)
+			https://www.youtube.com/watch?v=8mUPvdDGoLQ&index=14&list=PLsyeobzWxl7qBZtsEvp_n2A7sJs2MpF3r
+			
+			
+1. Create Maven Project (Core - quickstart)
+2. Add Hibernate-core and mysql-core-connector dependencies
+3. Create Student(rollno,name,marks) and Laptop(lid,lname) POJO classes with getter n setters and toString method
+		- @Entity and @Id annotations must be used for both
+4. in App.class
+			- create laptop object and set lid and lname
+			- create Student object and set rollno, name, marks
+			- Create Configuration, ServiceRegistry, SessionFactory, Session objects with the specifications (no detail info given here)
+			- session open, begin transaction and save(laptop) save(student) 
+			- then commit transaction session.getTransaction().commit()
+5. Create hibernate.cfg.xml file
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/neon</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <property name="show_sql">true</property>	
+6. Create relationship between laptop n student tables/classes       
+	- create a laptop object in Student class with gettes n setters, 
+7. Relationships:- when creating an object of other class in your class, u should specify the relationship b/n student n laptop
+-----------------------------EVERYTIME RUNNING THE APP DONT FORGET TO DROP ALL THE CREATED TABLES ----------------
+	@OneToOne annotation: 
+			- create laptop object in student class n put the annotation (geters n setters)
+			- in app.class student.setlaptop(laptop)
+			- in DB it will add lid as a column(foreign key) to student table 
+	@OneToMany(one student can have multiple laptops)
+			- create object of list type of laptop in student class n put the annotation (geters n setters)    private<Laptop> laptop = new ArrayList<Laptop>()
+			- in app.class student.getlaptop().add(laptop) :- add the laptop object in the laptop list
+			- in DB it will create a new third mapping table "student_laptop" and put their primary keys as related
+			- if it doesnt work (drop table laptop, student, student_laptop;) in MySQL workbench
+		- we should notify the laptop class about the student class
+			- many laptops can be used by single student 
+			- create Student object in laptop class(getters n setters)
+			- @ManyToOne add this annotation to it
+			- in this case the mapping will be done inside Student table, so we dont need extra(mapping) table 
+					- third student_rollnu will be added to laptop table as foreign key but also third mapping table will be created
+					- to remove the third table, in student class for list of laptops @OneToMany(MappedBy="student") 
+			- if it doesnt work (drop table laptop, student, student_laptop;) in MySQL workbench	
+	@ManyToMany
+		- Multiple students will use multiple laptops
+			- In laptop class create List of type student (getters n setters)
+			- in student class @ManyToMany(mappedBy="student")
+						- will create only student, laptop and laptop_student tables (3 not 4 tables)
+			- in App.class
+				- add student to student list in the laptop object :-  laptop.getStudent().add(student);
+			
+			
+ 
